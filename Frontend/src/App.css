@@ -1,0 +1,22 @@
+/* ===== APP ROOT STYLES ===== */
+
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Main application container */
+main {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure consistent base styling */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}

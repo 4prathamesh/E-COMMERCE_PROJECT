@@ -1,0 +1,186 @@
+/* ===== ORDERS PAGE STYLES ===== */
+.orders-page {
+  max-width: 900px;
+  margin: var(--space-xl) auto;
+  padding: var(--space-lg);
+  font-family: var(--font-family-base);
+  color: var(--color-text-dark);
+  background: var(--color-bg-secondary);
+  min-height: 100vh;
+}
+
+/* Header */
+.orders-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2xl);
+  gap: var(--space-lg);
+}
+
+.orders-header h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-dark);
+}
+
+.back-btn {
+  background: var(--color-secondary);
+  border: none;
+  color: var(--color-white);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.back-btn:hover {
+  background: var(--color-secondary-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Each order card */
+.order-card {
+  background: var(--color-white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  margin-bottom: var(--space-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-base);
+}
+
+.order-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.order-card h3 {
+  margin-bottom: var(--space-md);
+  font-size: var(--font-size-lg);
+  color: var(--color-text-dark);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-block;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: capitalize;
+}
+
+.status-badge.pending {
+  background: var(--color-warning-light);
+  color: #b45309;
+}
+
+.status-badge.completed {
+  background: var(--color-success-light);
+  color: #0b5394;
+}
+
+/* Order items list */
+.order-items {
+  margin-top: var(--space-lg);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.order-item {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto auto;
+  gap: var(--space-lg);
+  padding: var(--space-lg) 0;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item .name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-dark);
+}
+
+.order-item .desc {
+  color: #64748b;
+  font-size: 0.85rem;
+  align-self: center;
+}
+
+.order-item .qty {
+  text-align: right;
+  color: #1e293b;
+}
+
+.order-item .price {
+  text-align: right;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* Bill summary box */
+.bill-summary {
+  margin-top: 12px;
+  padding: 14px;
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.bill-summary p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+}
+
+.bill-summary strong {
+  color: #0f172a;
+}
+
+.bill-summary .savings {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 6px;
+}
+
+/* Delete button */
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.delete-btn {
+  background: #e11d48;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #be123c;
+}
+
+.delete-btn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  color: #64748b;
+  font-size: 1rem;
+  margin-top: 40px;
+}

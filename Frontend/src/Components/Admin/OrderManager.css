@@ -1,0 +1,97 @@
+/* ===== ORDER MANAGER STYLES ===== */
+.orders-container {
+  padding: var(--space-2xl);
+  font-family: var(--font-family-base);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.orders-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-2xl);
+  color: var(--color-text-dark);
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-lg);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.orders-table th,
+.orders-table td {
+  border: 1px solid var(--color-border);
+  padding: var(--space-md);
+  text-align: left;
+  font-size: var(--font-size-sm);
+}
+
+.orders-table th {
+  background-color: var(--color-secondary);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-white);
+}
+
+.orders-table tr:nth-child(even) {
+  background-color: var(--color-neutral-50);
+}
+
+.orders-table tr:hover {
+  background-color: var(--color-neutral-100);
+}
+
+.orders-table img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  margin-right: var(--space-sm);
+}
+
+.status-select {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-weight: var(--font-weight-semibold);
+}
+
+.status-select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.status-pending {
+  color: var(--color-warning);
+  font-weight: var(--font-weight-bold);
+}
+
+.status-paid {
+  color: var(--color-success);
+  font-weight: var(--font-weight-bold);
+}
+
+.status-shipped {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.status-completed {
+  color: var(--color-success);
+  font-weight: var(--font-weight-bold);
+}
+  font-weight: 600;
+}
+
+.status-cancelled {
+  color: red;
+  font-weight: 600;
+}
