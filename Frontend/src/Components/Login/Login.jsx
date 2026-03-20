@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { loginService, getUserByToken } from "../../services/services";
 import "./login.css";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../redux/slices/authSlice";
 
 const Login = () => {
+  const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,6 +26,8 @@ const Login = () => {
 
       // Step 2: Store token only
       localStorage.setItem("token", token);
+
+      dispatch(setUser(user));
 
       const fetchedUser = user;
 

@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, lazy } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 import { getUserByToken } from "../../services/services";
+const Navbar = lazy( () => import("../../Comman/Navbar") );
 
 const AdminDashboard = () => {
   const [openBox, setOpenBox] = useState(null);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -33,11 +34,6 @@ const AdminDashboard = () => {
     setOpenBox(openBox === box ? null : box);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
   if (loading) {
     return <h2 className="loading">Loading...</h2>;
   }
@@ -45,32 +41,7 @@ const AdminDashboard = () => {
   return (
     <>
       {/* 🔹 Navbar */}
-      <nav className="navbar">
-        <div className="navbar-left">
-          <img
-            src="https://www.mystore.in/s/62ea2c599d1398fa16dbae0a/655cac71f149b81eece12fdc/51ceexg6d3l.jpg"
-            alt="Logo"
-            className="navbar-logo"
-          />
-          <h1 className="navbar-title">Admin Dashboard</h1>
-        </div>
-        <div className="navbar-right">
-          <div
-            className="profile-icon"
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-          >
-            {user?.uname?.charAt(0).toUpperCase() || "U"}
-          </div>
-          {showProfileMenu && (
-            <div className="profile-dropdown">
-              <p className="profile-name">{user?.uname}</p>
-              <Link to="/Adminprofile">Profile</Link>
-              {/* <Link to="/changePassword">🔑 Change Password</Link> */}
-              <button onClick={handleLogout}>🚪 Logout</button>
-            </div>
-          )}
-        </div>
-      </nav>
+      <Navbar />
 
       {/* 🔹 Welcome Section */}
       <div className="welcome">

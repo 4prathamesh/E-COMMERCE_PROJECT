@@ -25,9 +25,21 @@ import WishList from './Components/User/WishList'
 import OrderManager from './Components/Admin/OrderManager'
 import Profile from './Components/Admin/Profile'
 import ShopPageProductDeatails from './Components/ShopPageProductDeatails'
-import EditUserProfile from './Components/User/EditUserProfile'
+import EditUserProfile from './Components/User/EditUserProfile';
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { fetchUser } from "./redux/slices/authSlice";
 
 const App = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(fetchUser(token));
+    }
+  }, []);
+  
   return (
     <>
     <BrowserRouter>
