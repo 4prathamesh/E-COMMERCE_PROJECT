@@ -18,7 +18,7 @@ const Navbar = () => {
         // 3. Redirect
         navigate("/login");
       };
-    console.log("Navbar user prop:", user);
+      
     return (
         <nav className="navbar">
         <div className="navbar-left">

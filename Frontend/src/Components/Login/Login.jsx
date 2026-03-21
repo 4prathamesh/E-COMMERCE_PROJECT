@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { loginService, getUserByToken } from "../../services/services";
+import { loginService } from "../../services/services";
 import "./login.css";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../redux/slices/authSlice";
@@ -35,9 +35,9 @@ const Login = () => {
 
       // Step 5: Navigate based on role
       if (fetchedUser.urole === "admin") {
-        navigate("/adminDashbord");
+        navigate("/adminDashbord/dashboard");
       } else {
-        navigate("/userDashbord");
+        navigate("/user/dashboard");
       }
 
     } catch (err) {

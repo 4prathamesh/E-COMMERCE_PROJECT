@@ -1,152 +1,62 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import {
   getCategory,
   getSubCategory,
   getProducts,
   addToCart,
   addViewAction,
-  addAddToCartAction,
 } from "../services/userServices";
-import { getUserByToken } from "../services/services";
-import "./ShopPage.css";
 
 const ShopPage = () => {
-  const [user, setUser] = useState(null);
+  const { search } = useOutletContext();
+
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const [search, setSearch] = useState("");
+
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedSubCategory, setSelectedSubCategory] = useState(null);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const dropdownRef = useRef(null);
 
-  // fetch user
-  useEffect(() => {
-    if (!token) return;
-    getUserByToken(token)
-      .then((res) => setUser(res.data.user))
-      .catch(() => {
-        localStorage.removeItem("token");
-        setUser(null);
-      });
-  }, [token]);
-
-  // fetch categories, subcategories, products
+  // Fetch Data
   useEffect(() => {
     (async () => {
-      try {
-        const cats = await getCategory();
-        setCategories(cats.data);
+      const cats = await getCategory();
+      setCategories(cats.data);
 
-        const subs = await getSubCategory();
-        setSubCategories(subs.data);
+      const subs = await getSubCategory();
+      setSubCategories(subs.data);
 
-        const prods = await getProducts();
-        setProducts(prods.data);
-        setFilteredProducts(prods.data);
-      } catch (err) {
-        console.error("❌ Error fetching initial data", err);
-      }
+      const prods = await getProducts();
+      setProducts(prods.data);
+      setFilteredProducts(prods.data);
     })();
   }, []);
 
-  // search
+  // Search
   useEffect(() => {
-    if (!search.trim()) {
-      setFilteredProducts(products);
-      return;
-    }
+    if (!search.trim()) return setFilteredProducts(products);
+
     const lower = search.toLowerCase();
-    const results = products.filter(
-      (p) =>
-        p.product_name?.toLowerCase().includes(lower) ||
-        categories.find(
-          (c) =>
-            c.category_name?.toLowerCase().includes(lower) &&
-            subCategories.some(
-              (s) =>
-                s.category_id === c.category_id &&
-                s.subcategory_id === p.subcategory_id
-            )
-        ) ||
-        subCategories.find(
-          (s) =>
-            s.subcategory_name?.toLowerCase().includes(lower) &&
-            s.subcategory_id === p.subcategory_id
-        )
+    setFilteredProducts(
+      products.filter((p) =>
+        p.product_name?.toLowerCase().includes(lower)
+      )
     );
-    setFilteredProducts(results);
-  }, [search, products, categories, subCategories]);
+  }, [search, products]);
 
-  // close dropdown on outside click
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setShowProfileDropdown(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // add to cart
-  function addCart(product_id) {
-    if (!user) return setShowLoginPopup(true);
-    addToCart({ user_id: user.user_id, product_id, quantity: 1 })
-      .then(() => {
-        alert("✅ Added to cart!");
-        addAddToCartAction(user.user_id, product_id).catch((err) =>
-          console.error("❌ Logging add-to-cart action failed:", err)
-        );
-      })
-      .catch((err) => console.error("❌ Add to cart failed:", err));
-  }
-
-  // wishlist
-  function addWishlist(product_id) {
-    if (!user) return setShowLoginPopup(true);
-    addViewAction({ user_id: user.user_id, product_id })
-      .then(() => alert("✅ Added to wishlist!"))
-      .catch((err) => console.error("❌ Add to wishlist failed:", err));
-  }
-
-  // navigation helpers
-  function goToCart() {
-    if (!user) return setShowLoginPopup(true);
-    navigate(`/cart?user_id=${user.user_id}`);
-  }
-  function goToWishlist() {
-    if (!user) return setShowLoginPopup(true);
-    navigate(`/wishlist?user_id=${user.user_id}`);
-  }
-  function goToRecommendations() {
-    if (!user) return setShowLoginPopup(true);
-    navigate(`/recommendations?user_id=${user.user_id}`);
-  }
-  function goToOffers() {
-    navigate(`/offers`);
-  }
-  function goToProduct(product_id) {
-    navigate(`/productShop/${product_id}`);
-  }
-  function logout() {
-    localStorage.removeItem("token");
-    setUser(null);
-    navigate("/login");
-  }
-
-  // filters
-  function handleCategoryClick(category_id) {
+  // Category Filter
+  const handleCategoryClick = (category_id) => {
     setSelectedCategory(category_id);
     setSelectedSubCategory(null);
+
     if (!category_id) return setFilteredProducts(products);
+
     setFilteredProducts(
       products.filter((p) =>
         subCategories.some(
@@ -156,94 +66,67 @@ const ShopPage = () => {
         )
       )
     );
-  }
+  };
 
-  function handleSubCategoryClick(subcategory_id) {
+  // Subcategory Filter
+  const handleSubCategoryClick = (subcategory_id) => {
     setSelectedSubCategory(subcategory_id);
+
     if (!subcategory_id) return handleCategoryClick(selectedCategory);
+
     setFilteredProducts(
       products.filter((p) => p.subcategory_id === subcategory_id)
     );
-  }
+  };
+
+  // Add to Cart
+  const handleAddToCart = (e, product_id) => {
+    e.preventDefault();
+    if (!token){
+      e.stopPropagation();
+      return setShowLoginPopup(true);
+      
+    } 
+
+    addToCart({ product_id })
+      .then(() => alert("✅ Added to cart"))
+      .catch(() => alert("❌ Failed"));
+  };
+
+  // Wishlist
+  const handleWishlist = (e, product_id) => {
+    e.stopPropagation();
+    if (!token) return setShowLoginPopup(true);
+
+    addViewAction({ product_id })
+      .then(() => alert("❤️ Added to wishlist"))
+      .catch(() => alert("❌ Failed"));
+  };
 
   return (
-    <div className="dashboard">
-      {/* Navbar */}
-      <div className="navbar">
-        <div className="logo">Perfect</div>
-
-        <input
-          type="text"
-          placeholder="Search products, category..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="searchbar"
-        />
-
-        <div className="nav-icons">
-          <div className="nav-item" onClick={goToCart}>
-            <span className="icon">🛒</span>
-            <span className="label">Cart</span>
-          </div>
-
-          <div className="nav-item" onClick={goToWishlist}>
-            <span className="icon">❤️</span>
-            <span className="label">Wishlist</span>
-          </div>
-
-          <div className="nav-item" onClick={goToRecommendations}>
-            <span className="icon">⭐</span>
-            <span className="label">Recs</span>
-          </div>
-
-          <div className="nav-item" onClick={goToOffers}>
-            <span className="icon">💰</span>
-            <span className="label">Offers</span>
-          </div>
-
-          {/* Profile */}
-          <div className="nav-item profile" ref={dropdownRef}>
-            <span
-              className="icon profile-icon"
-              onClick={() => {
-                if (!user) {
-                  navigate("/login"); // open login if not logged in
-                } else {
-                  setShowProfileDropdown((prev) => !prev);
-                }
-              }}
-            >
-              {user ? user.uname?.[0]?.toUpperCase() : "🔑"}
-            </span>
-            <span className="label">{user ? user.uname : "Login"}</span>
-
-            {user && showProfileDropdown && (
-              <div className="dropdown">
-                <button onClick={() => navigate("/profile")}>Edit Profile</button>
-                <button onClick={() => navigate("/change-password")}>
-                  Change Password
-                </button>
-                <button onClick={logout}>Logout</button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-100">
 
       {/* Categories */}
-      <div className="filters">
+      <div className="flex gap-3 overflow-x-auto px-6 py-3">
         <button
-          className={`filter-btn ${selectedCategory === null ? "active" : ""}`}
           onClick={() => handleCategoryClick(null)}
+          className={`px-4 py-1 rounded-full whitespace-nowrap ${
+            selectedCategory === null
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 hover:bg-blue-100"
+          }`}
         >
           All Categories
         </button>
+
         {categories.map((cat) => (
           <button
             key={cat.category_id}
             onClick={() => handleCategoryClick(cat.category_id)}
-            className={`filter-btn ${
-              selectedCategory === cat.category_id ? "active" : ""
+            className={`px-4 py-1 rounded-full whitespace-nowrap ${
+              selectedCategory === cat.category_id
+                ? "bg-blue-600 text-white"
+                : "bg-gray-200 hover:bg-blue-100"
             }`}
           >
             {cat.category_name}
@@ -253,23 +136,30 @@ const ShopPage = () => {
 
       {/* Subcategories */}
       {selectedCategory && (
-        <div className="filters subfilter">
+        <div className="flex gap-3 overflow-x-auto px-6 pb-3">
           <button
-            className={`filter-btn ${
-              selectedSubCategory === null ? "active" : ""
-            }`}
             onClick={() => handleSubCategoryClick(null)}
+            className={`px-4 py-1 rounded-full whitespace-nowrap ${
+              selectedSubCategory === null
+                ? "bg-green-600 text-white"
+                : "bg-gray-200 hover:bg-green-100"
+            }`}
           >
             All
           </button>
+
           {subCategories
             .filter((s) => s.category_id === selectedCategory)
             .map((sub) => (
               <button
                 key={sub.subcategory_id}
-                onClick={() => handleSubCategoryClick(sub.subcategory_id)}
-                className={`filter-btn ${
-                  selectedSubCategory === sub.subcategory_id ? "active" : ""
+                onClick={() =>
+                  handleSubCategoryClick(sub.subcategory_id)
+                }
+                className={`px-4 py-1 rounded-full whitespace-nowrap ${
+                  selectedSubCategory === sub.subcategory_id
+                    ? "bg-green-600 text-white"
+                    : "bg-gray-200 hover:bg-green-100"
                 }`}
               >
                 {sub.subcategory_name}
@@ -279,96 +169,103 @@ const ShopPage = () => {
       )}
 
       {/* Products */}
-      <div className="products-grid">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 p-6">
         {filteredProducts.map((p) => (
           <div
             key={p.product_id}
-            className="product-card"
-            onClick={() => goToProduct(p.product_id)}
+            className="relative bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 p-4 cursor-pointer group"
+            onClick={() => navigate(`/productShop/${p.product_id}`)}
           >
             {p.discount > 0 && (
-              <span className="discount">{p.discount}% OFF</span>
+              <span className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
+                {p.discount}% OFF
+              </span>
             )}
 
-            <img
-              src={`http://localhost:3000${p.product_image}`}
-              alt={p.product_name}
-              className="product-img"
-            />
+            <div className="h-40 flex items-center justify-center overflow-hidden">
+              <img
+                src={`http://localhost:3000${p.product_image}`}
+                alt=""
+                className="h-full object-contain group-hover:scale-110 transition duration-300"
+              />
+            </div>
 
-            <h3>{p.product_name}</h3>
-            <p className="brand">{p.brand}</p>
-            <p className="price">
-              <span className="old">₹{p.price}</span>{" "}
-              <span className="new">
-                ₹{(p.price - (p.price * p.discount) / 100).toFixed(2)}
+            <h3 className="text-sm font-semibold mt-2 line-clamp-1">
+              {p.product_name}
+            </h3>
+
+            <p className="text-sm text-gray-500">{p.brand}</p>
+
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-gray-400 line-through text-sm">
+                ₹{p.price}
               </span>
-            </p>
+              <span className="text-green-600 font-bold">
+                ₹
+                {(p.price - (p.price * p.discount) / 100).toFixed(2)}
+              </span>
+            </div>
 
-            <div className="btn-group">
+            <div className="flex gap-2 mt-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition">
               <button
-                onClick={(e) => {
-                  e.stopPropagation(); // prevent navigation
-                  addCart(p.product_id);
-                }}
+                onClick={(e) => handleAddToCart(e, p.product_id)}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2 rounded-lg transition duration-300 shadow-md hover:shadow-lg"
               >
-                Add to Cart
+                🛒 Add to Cart
               </button>
+
               <button
-                onClick={(e) => {
-                  e.stopPropagation(); // prevent navigation
-                  addWishlist(p.product_id);
-                }}
+                onClick={(e) => handleWishlist(e, p.product_id)}
+                className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-xs font-semibold transition duration-300 shadow-md hover:shadow-lg"
               >
-                Wishlist
+                ❤️
               </button>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Login Popup */}
-        {showLoginPopup && (
-          <>
-            <div className="modal fade show" style={{ display: "block" }} tabIndex="-1">
-              <div className="modal-dialog modal-dialog-centered">
-                <div className="modal-content">
-                  <div className="modal-header">
-                    <h5 className="modal-title">Login Required</h5>
-                    <button
-                      type="button"
-                      className="btn-close"
-                      onClick={() => setShowLoginPopup(false)}
-                    ></button>
-                  </div>
+      {/* Login Popup Modal */}
+      {showLoginPopup && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowLoginPopup(false)}
+          />
 
-                  <div className="modal-body">
-                    <p>You need to login first to continue.</p>
-                  </div>
-
-                  <div className="modal-footer">
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => setShowLoginPopup(false)}
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => navigate("/login")}
-                    >
-                      Go to Login
-                    </button>
-                  </div>
-                </div>
-              </div>
+          {/* Modal */}
+          <div className="relative bg-white rounded-2xl shadow-2xl w-[380px] p-6 z-[10000] animate-fadeIn">
+            
+            <div className="text-center">
+              <div className="text-5xl mb-3">🔒</div>
+              <h2 className="text-xl font-bold text-gray-800">
+                Login Required
+              </h2>
+              <p className="text-gray-500 mt-2 text-sm">
+                Please login to continue shopping
+              </p>
             </div>
 
-            {/* Backdrop */}
-            <div className="modal-backdrop fade show"></div>
-          </>
-        )}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowLoginPopup(false)}
+                className="flex-1 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => navigate("/login")}
+                className="flex-1 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md transition"
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
