@@ -100,6 +100,7 @@ const App = () => {
   // ✅ Auto login if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
+    alert("token"+token);
     if (token) {
       dispatch(fetchUser(token));
     }

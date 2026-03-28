@@ -2,33 +2,13 @@ import React, { useState, useEffect, lazy } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 import { getUserByToken } from "../../services/services";
+import { useDispatch, useSelector } from "react-redux";
 const Navbar = lazy( () => import("../../Comman/Navbar") );
 
 const AdminDashboard = () => {
   const [openBox, setOpenBox] = useState(null);
-  
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    getUserByToken(token)
-      .then((res) => {
-        setUser(res.data.user);
-        setLoading(false);
-      })
-      .catch(() => {
-        localStorage.removeItem("token");
-        navigate("/login");
-      });
-  }, [token, navigate]);
+  const { user, loading, error } = useSelector((state) => state.auth);
 
   const toggleBox = (box) => {
     setOpenBox(openBox === box ? null : box);
