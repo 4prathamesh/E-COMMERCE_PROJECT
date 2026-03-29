@@ -87,7 +87,7 @@
 // }
 
 // export default App
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchUser } from "./redux/slices/authSlice";
 
@@ -96,15 +96,33 @@ import AppRoutes from "./routes/AppRoutes";
 
 const App = () => {
   const dispatch = useDispatch();
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // ✅ Auto login if token exists
+  // Auto login if token exists - Run once on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
-    alert("token"+token);
+    
     if (token) {
-      dispatch(fetchUser(token));
+      console.log("Token found, fetching user data...");
+      dispatch(fetchUser()).then(() => {
+        console.log("User data fetched successfully");
+        setIsInitialized(true);
+      }).catch((err) => {
+        console.error("Failed to fetch user:", err);
+        setIsInitialized(true);
+      });
+    } else {
+      console.log("No token found");
+      setIsInitialized(true);
     }
-  }, [dispatch]);
+  }, []); // Empty dependency array - run only once
+
+  // Wait for initialization before rendering routes
+  if (!isInitialized) {
+    return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <div>Loading user data...</div>
+    </div>;
+  }
 
   return <AppRoutes />;
 };

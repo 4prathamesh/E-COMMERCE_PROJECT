@@ -53,11 +53,26 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token"); // get from storage
     if (token) {
+      console.log("Axios Interceptor: Adding token to request");
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn("Axios Interceptor: No token found in localStorage");
     }
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Response interceptor to handle errors
+api.interceptors.response.use(
+  (response) => {
+    console.log("Axios Interceptor: Response received:", response.status);
+    return response;
+  },
+  (error) => {
+    console.error("Axios Interceptor: Error response:", error.response?.status, error.response?.data);
+    return Promise.reject(error);
+  }
 );
 
 export const viewProducts = () => {

@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { loginService } from "../../services/services";
 import "./login.css";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../redux/slices/authSlice";
+import { setUser, logout } from "../../redux/slices/authSlice";
+import { handleLogout } from "../../utils/authUtils";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -48,8 +49,7 @@ const Login = () => {
   };
 
   const handleGoHome = () => {
-    localStorage.removeItem("token");
-    navigate("/");
+    handleLogout(dispatch, logout, navigate);
   };
 
   return (
